@@ -4,7 +4,7 @@ import {displayLoading, hideLoading, loading} from "./loading.js"
 // https://pokeapi.co/api/v2/pokemon/?offset=0&limit=20
 // https://pokeapi.co/api/v2/pokemon/1/
 
-const pokelistContainer = document.querySelector(".pokemon-list")
+let pokelistContainer = document.querySelector(".pokemon-list")
 const homeBtn = document.getElementById("button-home")
 const searchField = document.getElementById("search-form")
 const searchError = document.getElementById("error-msg")
@@ -13,11 +13,13 @@ let pokemonData = []
 
 //TODO: Module cleanup, overall cleanup of code
 
-//Function that fetches list of pokemons with id between 0-151 (the original pokemon's)
+//Function that fetches list of pokemon's with id between 0-151 (the original pokemon's)
 async function fetchPokemonList(action = "https://pokeapi.co/api/v2/pokemon/?offset=0&limit=151"){
     displayLoading()
+    pokelistContainer.innerHTML = ""
     let currentPokemon = 0
-
+    //delete all data in array to avoid adding on more pokemon's when rendering
+    pokemonListData.length = 0
     await fetch(action)
     .then((response) => {
         if (response.status !== 200) {
@@ -90,16 +92,15 @@ async function fetchSinglePokemon(nameOrId){
         pokemonData.push({ data })
         console.log(pokemonData);
         renderSinglePokemon(pokemonData)
-        //TODO: add renderSinglePokemon function, or refactor renderPokemonList to work
         hideLoading()
     })
 }
-//TODO: FUNCTION FOR RENDERING 1 card of a clicked pokemon bigger with more data
+
 function renderSinglePokemon(pokeData) {
     pokelistContainer.innerHTML = ""
     let d = pokeData[0].data
     const statsArray = ["Weight", "Height", "Ability"]
-    console.log(pokeData);
+
     let pokemonImageUrl = `https://img.pokemondb.net/sprites/home/normal/${d.name}.png`
     let flexWrapper = document.createElement("div")
     flexWrapper.classList.add("big-pokomon-card-flex-wrapper", "row")
@@ -146,6 +147,7 @@ function renderSinglePokemon(pokeData) {
         mainStat.classList.add("main-stat")
         statHeading.textContent = stat
         //BUG Fix it so stats are generated dynamically 
+        //Possible soulution is to change statsArray to contain 3 objects, where data is updated per pokemon?
         mainStat.append(statHeading, statData)
         mainStats.append(mainStat)
     })
@@ -233,7 +235,7 @@ searchField.addEventListener("submit", (event) => {
     let targetValue = ""
 
     //BUG: loading loop if search field is empty, simple if statement to fix.
-    
+
     //Fancy way of grabbing form input value
     const data = new FormData(event.target);
     for (const pair of data.entries()) {
@@ -241,8 +243,25 @@ searchField.addEventListener("submit", (event) => {
     }
     fetchSinglePokemon(targetValue)
 });
-//Initialize page
-fetchPokemonList()
+
+/* const eraList = document.getElementById("pokemon-era").getElementsByTagName("li"),
+    eraListArray = Map(eraList, getText);
+ */
+//TODO: Find better way of targeting all buttons at once
+const kantoBtn = document.getElementById("kanto")
+kantoBtn.addEventListener("click", (event) => {
+    event.preventDefault
+    fetchPokemonList()
+
+})
+const johtoBtn = document.getElementById("johto")
+johtoBtn.addEventListener("click", (event) => {
+    event.preventDefault
+    fetchPokemonList("https://pokeapi.co/api/v2/pokemon/?offset=151&limit=99")
+
+})
 
 autocomplete(document.getElementById("myInput"), searchArray);
 
+//Initialize page
+fetchPokemonList()

@@ -4,9 +4,6 @@ const loading =  document.getElementById("loading-container")
 
 function displayLoading(){
     loading.classList.add("display")
-    /* setTimeout(() => {
-        loading.classList.remove("display")
-    }, 1000) */
 }
 
 

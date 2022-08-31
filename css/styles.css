@@ -78,7 +78,37 @@ NAVBAR
     background-color: #7f5af0 !important;
     color: #ffffff;
   }
-
+  .pokemon-era-selector{
+    width: 960px;
+    margin: 0 auto;
+  }
+  .pokemon-era-selector ul{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .pokemon-era-selector ul li{
+    margin: 0.625rem
+  }
+  .pokemon-era-selector ul li button{
+    text-decoration: none;
+    color: #FFF;
+    border: none;
+    background: #7f5af0;
+    display: block;
+    padding: 0.4rem 0.8rem;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: background 0.3s ease-in-out;
+  }
+  .pokemon-era-selector ul li button:hover,
+  .pokemon-era-selector ul li button:active {
+    background: green;
+  }
 /* 
 Containers
 */
@@ -261,6 +291,8 @@ Pokemon-Cards-Global
     justify-content: center;
     align-items: center;
     cursor: pointer;
+    filter: none; 
+    transition: filter 0.3s ease-in-out ;
 }
 .card:hover,
 .card:active {
@@ -366,6 +398,7 @@ h1, h2, h3, h4, h5, h6, h7, h8 {
 .nav-container h1 {
     color: #FFF;
     font-size: 5rem;
+    cursor: pointer;
 }
 
 /* 
