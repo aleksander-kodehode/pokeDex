@@ -8,6 +8,14 @@ const searchInput = document.getElementById("myInput")
 const searchError = document.getElementById("error-msg")
 const eraBtns = document.querySelectorAll(".era-btn")
 
+//method to capitalize only the first letter instead of the whole string
+Object.defineProperty(String.prototype, 'capitalize', {
+    value: function() {
+      return this.charAt(0).toUpperCase() + this.slice(1);
+    },
+    enumerable: false
+  });
+
 let pokemonListData = []
 let pokemonData = []
 
@@ -92,15 +100,23 @@ async function fetchSinglePokemon(nameOrId){
         pokemonData.pop()
         pokemonData.push({ data })
         renderSinglePokemon(pokemonData)
+        console.log(pokemonData);
         hideLoading()
     })
 }
-
 function renderSinglePokemon(pokeData) {
     pokelistContainer.innerHTML = ""
     let d = pokeData[0].data
-    const statsArray = ["Weight", "Height", "Ability"]
-
+    const statsObj = {
+        weight: 0,
+        height: 0, 
+        ability: ""
+    }
+    Object.assign(statsObj, {
+        weight: (d.weight / 10), 
+        height: (d.height / 10), 
+        ability: d.abilities[0].ability.name
+    })
     let pokemonImageUrl = `https://img.pokemondb.net/sprites/home/normal/${d.name}.png`
     let flexWrapper = document.createElement("div")
     flexWrapper.classList.add("big-pokomon-card-flex-wrapper", "row")
@@ -113,13 +129,13 @@ function renderSinglePokemon(pokeData) {
 
     let pokemonHeading = document.createElement("h2")
     pokemonHeading.classList.add("pokemon-name")
-    pokemonHeading.textContent = d.name
+    pokemonHeading.textContent = d.name.capitalize()
 
     let pokemonImageContainer = document.createElement("div"),
         pokemonImage = document.createElement("img")
     pokemonImageContainer.classList.add("image-container")
     pokemonImage.setAttribute("src", pokemonImageUrl)
-    pokemonImage.setAttribute("alt", "Front facing " + d.name)
+    pokemonImage.setAttribute("alt", "Front facing " + d.name.capitalize())
 
     let pokemonTypeof = document.createElement("div")
     pokemonTypeof.classList.add("pokemon-typeOf")
@@ -135,23 +151,29 @@ function renderSinglePokemon(pokeData) {
     let statWrapper = document.createElement("div"),
         mainStats = document.createElement("div"),
         statsHeading = document.createElement("h3")
-
+    
+    statsHeading.textContent = "STATS"
     statWrapper.classList.add("pokemon-stats-wrapper")
     mainStats.classList.add("main-stats")
-    statsHeading.textContent = "Stats"
-
-    statsArray.forEach(stat => {
+    //Object loop to add data
+    for (const key in statsObj) {
         let mainStat = document.createElement("span"),
             statHeading = document.createElement("h4"),
             statData = document.createElement("p")
         mainStat.classList.add("main-stat")
-        statHeading.textContent = stat
-        //BUG Fix it so stats are generated dynamically 
-        //Possible soulution is to change statsArray to contain 3 objects, where data is updated per pokemon?
+        statHeading.textContent = key.capitalize()
+        //Check which unit to add behind the value based on heading
+        if (statHeading.textContent == "Weight") {
+            statData.textContent = `${statsObj[key]} kg`
+        } else if (statHeading.textContent == "Height"){
+            statData.textContent = `${statsObj[key]} m`
+        } else {
+            statData.textContent = statsObj[key]
+        }
+
         mainStat.append(statHeading, statData)
         mainStats.append(mainStat)
-    })
-
+    }
     statWrapper.append(statsHeading, mainStats)
 
     d.stats.forEach(stat => {
@@ -161,9 +183,10 @@ function renderSinglePokemon(pokeData) {
             sliderHeading = document.createElement("h6")
         sliderStats.classList.add("slider-stats")
 
+        //Divide value by random number to not make it overflow the parent div when value exceed 100
         let percent = (stat.base_stat / 1.8) 
 
-        sliderHeading.textContent = stat.stat.name.toUpperCase()
+        sliderHeading.textContent = stat.stat.name.capitalize()
         bar.classList.add("bar")
         barIndicator.classList.add("bar-indicator", stat.stat.name)
         barIndicator.textContent = stat.base_stat
@@ -172,9 +195,16 @@ function renderSinglePokemon(pokeData) {
         sliderStats.append(sliderHeading, bar)
         statWrapper.append(sliderStats)
     })
-   
-    pokemonImageContainer.append(pokemonImage)
+    //If game_index is not empty, append data on where the pokemon first appeared.
+    if (d.game_indices != "") {
+        const firstAppeared = document.createElement("p")
+        firstAppeared.textContent = `${d.name.capitalize()} first appeared in Pokemon ${d.game_indices[0].version.name.capitalize()}`
+        console.log(d.game_indices[0].version.name);
+        statWrapper.append(firstAppeared)
+    }
     
+
+    pokemonImageContainer.append(pokemonImage)
     pokemonCard.append(pokemonHeading, pokemonImageContainer, pokemonTypeof)
     flexWrapper.append(pokemonCard, statWrapper)
     pokelistContainer.appendChild(flexWrapper)
@@ -198,13 +228,13 @@ function renderPokemonList() {
             pokemonIdSpan = document.createElement("span")
         pokemonImageContainer.classList.add("image-container")
         pokemonImage.setAttribute("src", pokemonImageUrl)
-        pokemonImage.setAttribute("alt", "Front facing " + pokemon.data.name)
+        pokemonImage.setAttribute("alt", "Front facing " + pokemon.data.name.capitalize())
         pokemonIdSpan.classList.add("pokemon-id")
         pokemonIdSpan.textContent = "#" + pokemon.data.id
         
         let pokemonHeader = document.createElement("h2")
         pokemonHeader.classList.add("pokemon-name")
-        pokemonHeader.textContent = pokemon.data.name
+        pokemonHeader.textContent = pokemon.data.name.capitalize()
 
         let pokemonTypeof = document.createElement("div")
         pokemonTypeof.classList.add("pokemon-typeOf")
