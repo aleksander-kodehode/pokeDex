@@ -7,6 +7,7 @@ import {displayLoading, hideLoading, loading} from "./loading.js"
 let pokelistContainer = document.querySelector(".pokemon-list")
 const homeBtn = document.getElementById("button-home")
 const searchField = document.getElementById("search-form")
+const searchInput = document.getElementById("myInput")
 const searchError = document.getElementById("error-msg")
 const eraBtns = document.querySelectorAll(".era-btn")
 
@@ -236,16 +237,18 @@ homeBtn.addEventListener("click", () =>{
 searchField.addEventListener("submit", (event) => {
     event.preventDefault()
     let targetValue = ""
-
-    //BUG: loading loop if search field is empty, simple if statement to fix.
-
-    //Fancy way of grabbing form input value
     const data = new FormData(event.target);
-    for (const pair of data.entries()) {
+    //Fancy way of grabbing form input value
+    if (searchInput.value != ""){
+        searchError.textContent = ""
+        for (const pair of data.entries()) {
         targetValue = `${pair[1].toLocaleLowerCase()}`
+        fetchSinglePokemon(targetValue)}
+    } else {
+        searchError.textContent="Please type something to search"
     }
-    fetchSinglePokemon(targetValue)
 });
+
 //TODO: Find better way of targeting all buttons at once
 eraBtns.forEach((btn) => {
     let eraId = btn.getAttribute("id") 
