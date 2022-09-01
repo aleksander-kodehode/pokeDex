@@ -1,9 +1,6 @@
 import {autocomplete, searchArray} from "./search.js"
 import {displayLoading, hideLoading, loading} from "./loading.js"
 
-// https://pokeapi.co/api/v2/pokemon/?offset=0&limit=20
-// https://pokeapi.co/api/v2/pokemon/1/
-
 let pokelistContainer = document.querySelector(".pokemon-list")
 const homeBtn = document.getElementById("button-home")
 const searchField = document.getElementById("search-form")
@@ -15,6 +12,7 @@ let pokemonListData = []
 let pokemonData = []
 
 //TODO: Module cleanup, overall cleanup of code
+//TODO: Go through code and add comments
 
 //Function that fetches list of pokemon's with id between 0-151 (the original pokemon's)
 async function fetchPokemonList(action = "https://pokeapi.co/api/v2/pokemon/?offset=0&limit=151"){
@@ -249,7 +247,6 @@ searchField.addEventListener("submit", (event) => {
     }
 });
 
-//TODO: Find better way of targeting all buttons at once
 eraBtns.forEach((btn) => {
     let eraId = btn.getAttribute("id") 
     btn.addEventListener("click", (event) => {

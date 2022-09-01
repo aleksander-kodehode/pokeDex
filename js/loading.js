@@ -6,7 +6,6 @@ function displayLoading(){
     loading.classList.add("display")
 }
 
-
 function hideLoading(){
     loading.classList.remove("display")
 }
