@@ -195,7 +195,7 @@ Pokemon-Cards-Large
 .pokemon-big-card .image-container{
     display: flex;
     flex-direction: column;
-    margin-top: -4.2rem; /* BUG: Sometimes causes some images to clip into heading */
+    margin-top: -1.5rem;
     margin-bottom: 0.625rem ;
 }
 .pokemon-big-card .image-container img {
