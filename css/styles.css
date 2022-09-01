@@ -265,7 +265,7 @@ Pokemon-Cards-Small
     background: grey;
     margin-bottom: 2rem;
     min-width: 230px;
-    max-width: 250px;
+    max-width: 230px;
 }
 .pokemon-list-card .image-container{
     display: flex;
