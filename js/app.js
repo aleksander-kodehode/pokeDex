@@ -1,6 +1,8 @@
+//Imports
 import {autocomplete, searchArray} from "./search.js"
 import {displayLoading, hideLoading, loading} from "./loading.js"
 
+//Global variables
 let pokelistContainer = document.querySelector(".pokemon-list")
 const homeBtn = document.getElementById("button-home")
 const searchField = document.getElementById("search-form")
@@ -8,21 +10,14 @@ const searchInput = document.getElementById("myInput")
 const searchError = document.getElementById("error-msg")
 const eraBtns = document.querySelectorAll(".era-btn")
 
-//method to capitalize only the first letter instead of the whole string
-Object.defineProperty(String.prototype, 'capitalize', {
-    value: function() {
-      return this.charAt(0).toUpperCase() + this.slice(1);
-    },
-    enumerable: false
-  });
-
+//Empty arrays for data storage
 let pokemonListData = []
 let pokemonData = []
 
 //TODO: Module cleanup, overall cleanup of code
 //TODO: Go through code and add comments
 
-//Function that fetches list of pokemon's with id between 0-151 (the original pokemon's)
+//Function that fetches list of pokemon's based on url offset and limit)
 async function fetchPokemonList(action = "https://pokeapi.co/api/v2/pokemon/?offset=0&limit=151"){
     displayLoading()
     pokelistContainer.innerHTML = ""
@@ -39,6 +34,7 @@ async function fetchPokemonList(action = "https://pokeapi.co/api/v2/pokemon/?off
         return response.json()
     })
     .then((data) => {
+        //Loop through each data point, ++ to currentPokemon to match it in the fetchPokemonData
         data.results.forEach((pokemon, index) => {
             currentPokemon++
             fetchPokemonData(pokemon, currentPokemon, data.results.length)
@@ -80,7 +76,9 @@ async function fetchPokemonData(pokemon, current = null, total = null){
     })
 }
 //This function runs when user either searches an accepted search string, or click on a card in the list
-//Renders the page with a single card with more data then what available in the entire list
+//fetches data based on pokemon name or ID
+//Could probably rewrite this to use data that exist, and if it doesnt look up new data maybe a todo 
+//TODO:Optimize code to reuse data from pokemonData array
 async function fetchSinglePokemon(nameOrId){
     searchError.textContent = ""
     displayLoading()
@@ -104,10 +102,14 @@ async function fetchSinglePokemon(nameOrId){
         hideLoading()
     })
 }
+/// Renders out a single pokemon card with more data then available when displayed in the list
 function renderSinglePokemon(pokeData) {
+    //Clear out container
     pokelistContainer.innerHTML = ""
+    //Short hand for cleaner code
     let d = pokeData[0].data
-    const statsObj = {
+    //Object with stats for generating elements based on keys.length
+    let statsObj = {
         weight: 0,
         height: 0, 
         ability: ""
@@ -117,37 +119,39 @@ function renderSinglePokemon(pokeData) {
         height: (d.height / 10), 
         ability: d.abilities[0].ability.name
     })
+    
     let pokemonImageUrl = `https://img.pokemondb.net/sprites/home/normal/${d.name}.png`
     let flexWrapper = document.createElement("div")
     flexWrapper.classList.add("big-pokomon-card-flex-wrapper", "row")
 
+    //Right container, displaying the image + name
     let pokemonCard = document.createElement("div")
     pokemonCard.classList.add("pokemon-big-card", "card-bg")
     pokemonCard.setAttribute("data-id", d.id)
     pokemonCard.setAttribute("data-name", d.name)
     pokemonCard.setAttribute("data-type", d.types[0]["type"]["name"])
-
+    //Heading with pokemon name
     let pokemonHeading = document.createElement("h2")
     pokemonHeading.classList.add("pokemon-name")
     pokemonHeading.textContent = d.name.capitalize()
-
+    //Image container
     let pokemonImageContainer = document.createElement("div"),
         pokemonImage = document.createElement("img")
     pokemonImageContainer.classList.add("image-container")
     pokemonImage.setAttribute("src", pokemonImageUrl)
     pokemonImage.setAttribute("alt", "Front facing " + d.name.capitalize())
 
+    //Displays what type the pokemon is
     let pokemonTypeof = document.createElement("div")
     pokemonTypeof.classList.add("pokemon-typeOf")
-        //Needed a forEach incase pokemon had multiple types
-        //unsure of the performance of nested forEach loops
-        d.types.forEach(slot => {
-            let elementType = document.createElement("span")
-            elementType.classList.add("element-type")
-            elementType.textContent = slot.type.name
-            pokemonTypeof.append(elementType)
-        });
-    
+    //Needed a forEach incase pokemon had multiple types
+    d.types.forEach(slot => {
+        let elementType = document.createElement("span")
+        elementType.classList.add("element-type")
+        elementType.textContent = slot.type.name
+        pokemonTypeof.append(elementType)
+    });
+    //Creating some elements for stats
     let statWrapper = document.createElement("div"),
         mainStats = document.createElement("div"),
         statsHeading = document.createElement("h3")
@@ -155,6 +159,7 @@ function renderSinglePokemon(pokeData) {
     statsHeading.textContent = "STATS"
     statWrapper.classList.add("pokemon-stats-wrapper")
     mainStats.classList.add("main-stats")
+
     //Object loop to add data
     for (const key in statsObj) {
         let mainStat = document.createElement("span"),
@@ -170,21 +175,21 @@ function renderSinglePokemon(pokeData) {
         } else {
             statData.textContent = statsObj[key]
         }
-
         mainStat.append(statHeading, statData)
         mainStats.append(mainStat)
     }
     statWrapper.append(statsHeading, mainStats)
 
+    //Bar stats
     d.stats.forEach(stat => {
+        //Divide value by random number to not make it overflow the parent div when value exceed 100
+        let percent = (stat.base_stat / 1.8) 
+
         let sliderStats = document.createElement("div"),
             bar = document.createElement("div"),
             barIndicator = document.createElement("div"),
             sliderHeading = document.createElement("h6")
         sliderStats.classList.add("slider-stats")
-
-        //Divide value by random number to not make it overflow the parent div when value exceed 100
-        let percent = (stat.base_stat / 1.8) 
 
         sliderHeading.textContent = stat.stat.name.capitalize()
         bar.classList.add("bar")
@@ -202,27 +207,29 @@ function renderSinglePokemon(pokeData) {
         console.log(d.game_indices[0].version.name);
         statWrapper.append(firstAppeared)
     }
-    
-
+    //Append most elements outside of the loops to their respective parent
     pokemonImageContainer.append(pokemonImage)
     pokemonCard.append(pokemonHeading, pokemonImageContainer, pokemonTypeof)
     flexWrapper.append(pokemonCard, statWrapper)
     pokelistContainer.appendChild(flexWrapper)
 }
-
+//Rendering out the list of all the pokemon cards
 function renderPokemonList() {
     displayLoading()
     pokelistContainer.innerHTML = ""
     
+    //forEach loop to render out a pokemon-card for everything in the array
     pokemonListData.forEach(pokemon => {
         let pokemonImageUrl = `https://img.pokemondb.net/sprites/home/normal/${pokemon.data.name}.png`
 
+        //Create a lot of elements and assign attributes, classes, content etc.
         let pokemonListCard = document.createElement("div")
         pokemonListCard.classList.add("card", "pokemon-list-card", "card-bg")
         pokemonListCard.setAttribute("data-id", pokemon.data.id)
         pokemonListCard.setAttribute("data-name", pokemon.data.name)
         pokemonListCard.setAttribute("data-type", pokemon.data.types[0]["type"]["name"])
         
+        //Create a lot of elements and assign attributes, classes, content etc.
         let pokemonImageContainer = document.createElement("div"),
             pokemonImage = document.createElement("img"),
             pokemonIdSpan = document.createElement("span")
@@ -232,6 +239,7 @@ function renderPokemonList() {
         pokemonIdSpan.classList.add("pokemon-id")
         pokemonIdSpan.textContent = "#" + pokemon.data.id
         
+        //Create a lot of elements and assign attributes, classes, content etc.
         let pokemonHeader = document.createElement("h2")
         pokemonHeader.classList.add("pokemon-name")
         pokemonHeader.textContent = pokemon.data.name.capitalize()
@@ -246,11 +254,12 @@ function renderPokemonList() {
             elementType.textContent = slot.type.name
             pokemonTypeof.append(elementType)
         })
-
+        //Append elements outside of the typeof loop to their respective parent
         pokemonImageContainer.append(pokemonIdSpan, pokemonImage)
         pokemonListCard.append(pokemonImageContainer, pokemonHeader, pokemonTypeof)
         pokelistContainer.appendChild(pokemonListCard)
 
+        //Add eventListener for to all the cards that runs fetchSinglePokemon
         pokemonListCard.addEventListener("click", (event) => {
             event.preventDefault();
             let renderPokemonId = pokemonListCard.getAttribute("data-id")
@@ -259,14 +268,17 @@ function renderPokemonList() {
     })
     hideLoading()
 }
+/* Nav bar event listeners */
+//home button
 homeBtn.addEventListener("click", () =>{
     renderPokemonList()
 })
+//Search field
 searchField.addEventListener("submit", (event) => {
     event.preventDefault()
     let targetValue = ""
     const data = new FormData(event.target);
-    //Fancy way of grabbing form input value
+    //Fancy way of grabbing form input value with a catch if search string is empty
     if (searchInput.value != ""){
         searchError.textContent = ""
         for (const pair of data.entries()) {
@@ -276,7 +288,7 @@ searchField.addEventListener("submit", (event) => {
         searchError.textContent="Please type something to search"
     }
 });
-
+//Era buttons, adding event listener to all buttons at once through a loop
 eraBtns.forEach((btn) => {
     let eraId = btn.getAttribute("id") 
     btn.addEventListener("click", (event) => {
@@ -291,6 +303,14 @@ eraBtns.forEach((btn) => {
     })
 })
 
+//method to capitalize only the first letter instead of the whole string
+Object.defineProperty(String.prototype, 'capitalize', {
+    value: function() {
+      return this.charAt(0).toUpperCase() + this.slice(1);
+    },
+    enumerable: false
+  });
+//AutoComplete function for the search field init.
 autocomplete(document.getElementById("myInput"), searchArray);
 
 //Initialize page
