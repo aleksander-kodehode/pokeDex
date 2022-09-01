@@ -105,7 +105,6 @@ function renderSinglePokemon(pokeData) {
     if (d.game_indices != "") {
         const firstAppeared = document.createElement("p")
         firstAppeared.textContent = `${d.name.capitalize()} first appeared in Pokemon ${d.game_indices[0].version.name.capitalize()}`
-        console.log(d.game_indices[0].version.name);
         statWrapper.append(firstAppeared)
     }
     //Append most elements outside of the loops to their respective parent

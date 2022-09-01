@@ -12,8 +12,6 @@ const searchInput = document.getElementById("myInput")
 
 const eraBtns = document.querySelectorAll(".era-btn")
 
-//TODO: Module cleanup, overall cleanup of code
-
 /* Nav bar event listeners */
 //home button
 homeBtn.addEventListener("click", () =>{
@@ -48,7 +46,6 @@ eraBtns.forEach((btn) => {
         else if (eraId === "galar") fetchPokemonList("https://pokeapi.co/api/v2/pokemon/?offset=810&limit=88")
     })
 })
-
 //method to capitalize only the first letter instead of the whole string
 Object.defineProperty(String.prototype, 'capitalize', {
     value: function() {

@@ -9,7 +9,6 @@ const searchError = document.getElementById("error-msg")
 let pokemonListData = []
 let pokemonData = []
 
-
 //Function that fetches list of pokemon's based on url offset and limit)
 async function fetchPokemonList(action = "https://pokeapi.co/api/v2/pokemon/?offset=0&limit=151"){
     displayLoading()
@@ -91,7 +90,6 @@ async function fetchSinglePokemon(nameOrId){
         pokemonData.pop()
         pokemonData.push({ data })
         renderSinglePokemon(pokemonData)
-        console.log(pokemonData);
         hideLoading()
     })
 }
