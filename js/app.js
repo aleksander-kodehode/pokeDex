@@ -8,6 +8,8 @@ let pokelistContainer = document.querySelector(".pokemon-list")
 const homeBtn = document.getElementById("button-home")
 const searchField = document.getElementById("search-form")
 const searchError = document.getElementById("error-msg")
+const eraBtns = document.querySelectorAll(".era-btn")
+
 let pokemonListData = []
 let pokemonData = []
 
@@ -90,7 +92,6 @@ async function fetchSinglePokemon(nameOrId){
         //clear array before pushing new data
         pokemonData.pop()
         pokemonData.push({ data })
-        console.log(pokemonData);
         renderSinglePokemon(pokemonData)
         hideLoading()
     })
@@ -181,6 +182,7 @@ function renderSinglePokemon(pokeData) {
 }
 
 function renderPokemonList() {
+    displayLoading()
     pokelistContainer.innerHTML = ""
     
     pokemonListData.forEach(pokemon => {
@@ -226,12 +228,13 @@ function renderPokemonList() {
             fetchSinglePokemon(renderPokemonId)
         });
     })
+    hideLoading()
 }
 homeBtn.addEventListener("click", () =>{
     renderPokemonList()
 })
 searchField.addEventListener("submit", (event) => {
-    event.preventDefault();
+    event.preventDefault()
     let targetValue = ""
 
     //BUG: loading loop if search field is empty, simple if statement to fix.
@@ -243,22 +246,19 @@ searchField.addEventListener("submit", (event) => {
     }
     fetchSinglePokemon(targetValue)
 });
-
-/* const eraList = document.getElementById("pokemon-era").getElementsByTagName("li"),
-    eraListArray = Map(eraList, getText);
- */
 //TODO: Find better way of targeting all buttons at once
-const kantoBtn = document.getElementById("kanto")
-kantoBtn.addEventListener("click", (event) => {
-    event.preventDefault
-    fetchPokemonList()
-
-})
-const johtoBtn = document.getElementById("johto")
-johtoBtn.addEventListener("click", (event) => {
-    event.preventDefault
-    fetchPokemonList("https://pokeapi.co/api/v2/pokemon/?offset=151&limit=99")
-
+eraBtns.forEach((btn) => {
+    let eraId = btn.getAttribute("id") 
+    btn.addEventListener("click", (event) => {
+        if(eraId === "kanto") fetchPokemonList()
+        else if (eraId === "johto") fetchPokemonList("https://pokeapi.co/api/v2/pokemon/?offset=151&limit=99")
+        else if (eraId === "hoenn") fetchPokemonList("https://pokeapi.co/api/v2/pokemon/?offset=252&limit=134")
+        else if (eraId === "sinnoh") fetchPokemonList("https://pokeapi.co/api/v2/pokemon/?offset=387&limit=106")
+        else if (eraId === "unova") fetchPokemonList("https://pokeapi.co/api/v2/pokemon/?offset=494&limit=155")
+        else if (eraId === "kalos") fetchPokemonList("https://pokeapi.co/api/v2/pokemon/?offset=650&limit=71")
+        else if (eraId === "alola") fetchPokemonList("https://pokeapi.co/api/v2/pokemon/?offset=722&limit=87")
+        else if (eraId === "galar") fetchPokemonList("https://pokeapi.co/api/v2/pokemon/?offset=810&limit=88")
+    })
 })
 
 autocomplete(document.getElementById("myInput"), searchArray);
